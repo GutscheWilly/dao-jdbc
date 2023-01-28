@@ -65,23 +65,20 @@ public class SellerDaoJDBC implements Dao<Seller> {
         }
     }
 
-    private Seller createSeller(ResultSet resultSet) {
-        try {
-            Integer id = resultSet.getInt("Id");
-            String name = resultSet.getString("Name");
-            String email = resultSet.getString("Email");
-            Date birthDate = resultSet.getDate("BirthDate");
-            Double baseSalary = resultSet.getDouble("BaseSalary");
+    private Seller createSeller(ResultSet resultSet) throws SQLException {
+        Integer id = resultSet.getInt("Id");
+        String name = resultSet.getString("Name");
+        String email = resultSet.getString("Email");
+        Date birthDate = resultSet.getDate("BirthDate");
+        Double baseSalary = resultSet.getDouble("BaseSalary");
+        Department department = createDepartment(resultSet);
+        return new Seller(id, name, email, birthDate, baseSalary, department);
+    }
 
-            Integer departmentId = resultSet.getInt("DepartmentId");
-            String departmentName = resultSet.getString("DepartmentName");
-            Department department = new Department(departmentId, departmentName);
-
-            return new Seller(id, name, email, birthDate, baseSalary, department);
-        } 
-        catch (SQLException sqlException) {
-            throw new DatabaseException("Error to create seller!");
-        }
+    private Department createDepartment(ResultSet resultSet) throws SQLException {
+        Integer departmentId = resultSet.getInt("DepartmentId");
+        String departmentName = resultSet.getString("DepartmentName");
+        return new Department(departmentId, departmentName);
     }
 
     @Override
