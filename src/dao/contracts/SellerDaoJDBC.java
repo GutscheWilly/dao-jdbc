@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -52,7 +53,8 @@ public class SellerDaoJDBC implements Dao<Seller> {
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                return createSeller(resultSet);
+                Department department = createDepartment(resultSet);
+                return createSeller(resultSet, department);
             }
             return null;
         }
@@ -65,13 +67,54 @@ public class SellerDaoJDBC implements Dao<Seller> {
         }
     }
 
-    private Seller createSeller(ResultSet resultSet) throws SQLException {
+    public List<Seller> findByDepartment(Department department) {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            preparedStatement = connection.prepareStatement(
+                "SELECT seller.*, department.Name as DepartmentName " +
+                "FROM seller INNER JOIN department "                  +
+                "ON seller.DepartmentId = department.Id "             +
+                "WHERE DepartmentId = ? "                             +
+                "ORDER BY Name"
+            );
+            preparedStatement.setInt(1, department.getId());
+            resultSet = preparedStatement.executeQuery();
+            return createListOfSellers(resultSet, department);
+        }
+        catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
+        finally {
+            Database.closeResultSet(resultSet);
+            Database.closeStatement(preparedStatement);
+        }
+    }
+
+    private List<Seller> createListOfSellers(ResultSet resultSet, Department department) throws SQLException {
+        List<Seller> listOfSellers = new ArrayList<>();
+        while (resultSet.next()) {
+            Seller seller = createSeller(resultSet, department);
+            listOfSellers.add(seller);
+        }
+        if (listOfSellers.size() > 0) {
+            return listOfSellers;
+        }
+        return null;
+    }
+
+    @Override
+    public List<Seller> findAll() {
+        return null;
+    }
+
+    private Seller createSeller(ResultSet resultSet, Department department) throws SQLException {
         Integer id = resultSet.getInt("Id");
         String name = resultSet.getString("Name");
         String email = resultSet.getString("Email");
         Date birthDate = resultSet.getDate("BirthDate");
         Double baseSalary = resultSet.getDouble("BaseSalary");
-        Department department = createDepartment(resultSet);
         return new Seller(id, name, email, birthDate, baseSalary, department);
     }
 
@@ -79,10 +122,5 @@ public class SellerDaoJDBC implements Dao<Seller> {
         Integer departmentId = resultSet.getInt("DepartmentId");
         String departmentName = resultSet.getString("DepartmentName");
         return new Department(departmentId, departmentName);
-    }
-
-    @Override
-    public List<Seller> findAll() {
-        return null;
     }
 }
