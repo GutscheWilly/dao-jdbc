@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import dao.Dao;
 import database.Database;
@@ -98,7 +101,7 @@ public class SellerDaoJDBC implements Dao<Seller> {
             Seller seller = createSeller(resultSet, department);
             listOfSellers.add(seller);
         }
-        if (listOfSellers.size() > 0) {
+        if (!isListEmpty(listOfSellers)) {
             return listOfSellers;
         }
         return null;
@@ -106,7 +109,55 @@ public class SellerDaoJDBC implements Dao<Seller> {
 
     @Override
     public List<Seller> findAll() {
+        Statement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(
+                "SELECT seller.*, department.Name as DepartmentName " +
+                "FROM seller INNER JOIN department "                   +
+                "ON seller.DepartmentId = department.Id "             +
+                "ORDER BY Name"
+            );
+            return createListOfSellers(resultSet);
+        }
+        catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
+        finally {
+            Database.closeResultSet(resultSet);
+            Database.closeStatement(statement);
+        }
+    }
+
+    private List<Seller> createListOfSellers(ResultSet resultSet) throws SQLException {
+        Map<Integer, Department> departmentMap = new HashMap<>();
+        List<Seller> listOfSellers = new ArrayList<>();
+
+        while (resultSet.next()) {
+            Department department = null;
+            Integer departmentId = resultSet.getInt("DepartmentId");
+
+            if (departmentMap.containsKey(departmentId)) {
+                department = departmentMap.get(departmentId);
+            } else {
+                department = createDepartment(resultSet);
+                departmentMap.put(departmentId, department);
+            }
+
+            Seller seller = createSeller(resultSet, department);
+            listOfSellers.add(seller);
+        }
+
+        if (!isListEmpty(listOfSellers)) {
+            return listOfSellers;
+        }
         return null;
+    }
+
+    private boolean isListEmpty(List<?> list) {
+        return list.size() == 0;
     }
 
     private Seller createSeller(ResultSet resultSet, Department department) throws SQLException {
