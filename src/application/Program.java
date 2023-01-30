@@ -1,5 +1,6 @@
 package application;
 
+import java.util.Date;
 import java.util.List;
 
 import dao.DaoFactory;
@@ -14,6 +15,7 @@ public class Program {
         test1(sellerDao);
         test2(sellerDao);
         test3(sellerDao);
+        test4(sellerDao);
     }
 
     public static void test1(SellerDaoJDBC sellerDao) {
@@ -39,6 +41,15 @@ public class Program {
         for (Seller seller : listOfSellers) {
             System.out.println(seller);
         }
+        System.out.println("-------------------------------------------------------------------------------------");
+    }
+
+    public static void test4(SellerDaoJDBC sellerDaoJDBC) {
+        System.out.println("TEST 4: insert");
+        Department department = new Department(2, "Eletronics");
+        Seller seller = new Seller(null, "Greg", "greg@gmail.com", new Date(), 4000.0, department);
+        sellerDaoJDBC.insert(seller);
+        System.out.println("Seller inserted! Id = " + seller.getId());
         System.out.println("-------------------------------------------------------------------------------------");
     }
 }
