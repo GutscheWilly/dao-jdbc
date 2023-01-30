@@ -27,7 +27,47 @@ public class SellerDaoJDBC implements Dao<Seller> {
 
     @Override
     public void insert(Seller seller) {
-        
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(
+                "INSERT INTO seller "                                 +
+                "(Name, Email, BirthDate, BaseSalary, DepartmentId) " +
+                "VALUES "                                             +
+                "(?, ?, ?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS
+            );
+            preparedStatement.setString(1, seller.getName());
+            preparedStatement.setString(2, seller.getEmail());
+            preparedStatement.setDate(3, new java.sql.Date(seller.getBirthDate().getTime()));
+            preparedStatement.setDouble(4, seller.getBaseSalary());
+            preparedStatement.setInt(5, seller.getDepartment().getId());
+
+            Integer rowsAffected = preparedStatement.executeUpdate();
+            resultSet = preparedStatement.getGeneratedKeys();
+            
+            if (rowsAffected == 1 && resultSet.next()) {
+                seller.setId(resultSet.getInt(1));
+                connection.commit();
+            } else {
+                throw new SQLException();
+            }
+        }
+        catch (SQLException sqlException1) {
+            try {
+                connection.rollback();
+                throw new DatabaseException("Error to insert seller! It rolled back! " + sqlException1.getMessage());
+            }
+            catch (SQLException sqlException2) {
+                throw new DatabaseException("Error trying to rollback! " + sqlException2.getMessage());
+            }
+        }
+        finally {
+            Database.closeResultSet(resultSet);
+            Database.closeStatement(preparedStatement);
+        }
     }
 
     @Override
@@ -116,7 +156,7 @@ public class SellerDaoJDBC implements Dao<Seller> {
             statement = connection.createStatement();
             resultSet = statement.executeQuery(
                 "SELECT seller.*, department.Name as DepartmentName " +
-                "FROM seller INNER JOIN department "                   +
+                "FROM seller INNER JOIN department "                  +
                 "ON seller.DepartmentId = department.Id "             +
                 "ORDER BY Name"
             );
