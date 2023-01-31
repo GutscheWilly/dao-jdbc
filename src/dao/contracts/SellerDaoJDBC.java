@@ -39,12 +39,7 @@ public class SellerDaoJDBC implements Dao<Seller> {
                 "(?, ?, ?, ?, ?)",
                 Statement.RETURN_GENERATED_KEYS
             );
-            preparedStatement.setString(1, seller.getName());
-            preparedStatement.setString(2, seller.getEmail());
-            preparedStatement.setDate(3, new java.sql.Date(seller.getBirthDate().getTime()));
-            preparedStatement.setDouble(4, seller.getBaseSalary());
-            preparedStatement.setInt(5, seller.getDepartment().getId());
-
+            applySellerAtributes(seller, preparedStatement);
             Integer rowsAffected = preparedStatement.executeUpdate();
             resultSet = preparedStatement.getGeneratedKeys();
             
@@ -72,7 +67,45 @@ public class SellerDaoJDBC implements Dao<Seller> {
 
     @Override
     public void update(Seller seller) {
-        
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(
+                "UPDATE seller "                                                            +
+                "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? " +
+                "WHERE Id = ?"
+            );
+            applySellerAtributes(seller, preparedStatement);
+            preparedStatement.setInt(6, seller.getId());
+            Integer rowsAffected = preparedStatement.executeUpdate();
+            
+            if (rowsAffected == 1) {
+                connection.commit();
+            } else {
+                throw new SQLException();
+            }
+        }
+        catch (SQLException sqlException1) {
+            try {
+                connection.rollback();
+                throw new DatabaseException("Error to update seller! It rolled back! " + sqlException1.getMessage());
+            }
+            catch (SQLException sqlException2) {
+                throw new DatabaseException("Error to rollback! " + sqlException2.getMessage());
+            }
+        }
+        finally {
+            Database.closeStatement(preparedStatement);
+        }
+    }
+
+    private void applySellerAtributes(Seller seller, PreparedStatement preparedStatement) throws SQLException {
+        preparedStatement.setString(1, seller.getName());
+        preparedStatement.setString(2, seller.getEmail());
+        preparedStatement.setDate(3, new java.sql.Date(seller.getBirthDate().getTime()));
+        preparedStatement.setDouble(4, seller.getBaseSalary());
+        preparedStatement.setInt(5, seller.getDepartment().getId());
     }
 
     @Override
