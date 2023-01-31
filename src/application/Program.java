@@ -16,11 +16,12 @@ public class Program {
         test2(sellerDao);
         test3(sellerDao);
         test4(sellerDao);
+        test5(sellerDao);
     }
 
-    public static void test1(SellerDaoJDBC sellerDao) {
+    public static void test1(SellerDaoJDBC sellerDaoJDBC) {
         System.out.println("TEST 1: findById");
-        Seller seller = sellerDao.findById(5);
+        Seller seller = sellerDaoJDBC.findById(5);
         System.out.println(seller);
         System.out.println("-------------------------------------------------------------------------------------");
     }
@@ -50,6 +51,16 @@ public class Program {
         Seller seller = new Seller(null, "Greg", "greg@gmail.com", new Date(), 4000.0, department);
         sellerDaoJDBC.insert(seller);
         System.out.println("Seller inserted! Id = " + seller.getId());
+        System.out.println("-------------------------------------------------------------------------------------");
+    }
+
+    public static void test5(SellerDaoJDBC sellerDaoJDBC) {
+        System.out.println("TEST 5: update");
+        Seller seller = sellerDaoJDBC.findById(1);
+        seller.setName("Willy");
+        seller.setEmail("willygutsche@gmail.com");
+        sellerDaoJDBC.update(seller);
+        System.out.println("Seller updated! Id = " + seller.getId());
         System.out.println("-------------------------------------------------------------------------------------");
     }
 }
