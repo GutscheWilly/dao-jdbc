@@ -110,7 +110,35 @@ public class SellerDaoJDBC implements Dao<Seller> {
 
     @Override
     public void deleteById(Integer id) {
-        
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(
+                "DELETE FROM seller " +
+                "WHERE Id = ?"
+            );
+            preparedStatement.setInt(1, id);
+            Integer rowsAffected = preparedStatement.executeUpdate();
+            
+            if (rowsAffected == 1) {
+                connection.commit();
+            } else {
+                throw new SQLException();
+            }
+        }
+        catch (SQLException sqlException1) {
+            try {
+                connection.rollback();
+                throw new DatabaseException("Error to delete seller! It rolled back! " + sqlException1.getMessage());
+            }
+            catch (SQLException sqlException2) {
+                throw new DatabaseException("Error to rollback! " + sqlException2.getMessage());
+            }
+        }
+        finally {
+            Database.closeStatement(preparedStatement);
+        }
     }
 
     @Override

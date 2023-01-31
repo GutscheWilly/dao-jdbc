@@ -2,6 +2,7 @@ package application;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 import dao.DaoFactory;
 import dao.contracts.SellerDaoJDBC;
@@ -11,12 +12,14 @@ import entities.Seller;
 public class Program {
 
     public static void main(String[] args) throws Exception {
+        Scanner scanner = new Scanner(System.in);
         SellerDaoJDBC sellerDao = (SellerDaoJDBC) DaoFactory.createSellerDao();
         test1(sellerDao);
         test2(sellerDao);
         test3(sellerDao);
         test4(sellerDao);
         test5(sellerDao);
+        test6(sellerDao, scanner);
     }
 
     public static void test1(SellerDaoJDBC sellerDaoJDBC) {
@@ -61,6 +64,15 @@ public class Program {
         seller.setEmail("willygutsche@gmail.com");
         sellerDaoJDBC.update(seller);
         System.out.println("Seller updated! Id = " + seller.getId());
+        System.out.println("-------------------------------------------------------------------------------------");
+    }
+
+    public static void test6(SellerDaoJDBC sellerDaoJDBC, Scanner scanner) {
+        System.out.println("TEST 6: deleteById");
+        System.out.print("Enter an ID: ");
+        Integer id = scanner.nextInt();
+        sellerDaoJDBC.deleteById(id);
+        System.out.println("Seller deleted! Id = " + id);
         System.out.println("-------------------------------------------------------------------------------------");
     }
 }
