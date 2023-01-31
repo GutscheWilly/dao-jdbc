@@ -9,27 +9,27 @@ import dao.contracts.SellerDaoJDBC;
 import entities.Department;
 import entities.Seller;
 
-public class Program {
+public class TestSellerDaoJDBC {
 
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
         SellerDaoJDBC sellerDao = (SellerDaoJDBC) DaoFactory.createSellerDao();
-        test1(sellerDao);
-        test2(sellerDao);
-        test3(sellerDao);
-        test4(sellerDao);
-        test5(sellerDao);
-        test6(sellerDao, scanner);
+        testFindById(sellerDao);
+        testFindByDepartment(sellerDao);
+        testFindAll(sellerDao);
+        testInsert(sellerDao);
+        testUpdate(sellerDao);
+        testDelete(sellerDao, scanner);
     }
 
-    public static void test1(SellerDaoJDBC sellerDaoJDBC) {
+    public static void testFindById(SellerDaoJDBC sellerDaoJDBC) {
         System.out.println("TEST 1: findById");
         Seller seller = sellerDaoJDBC.findById(5);
         System.out.println(seller);
         System.out.println("-------------------------------------------------------------------------------------");
     }
 
-    public static void test2(SellerDaoJDBC sellerDao) {
+    public static void testFindByDepartment(SellerDaoJDBC sellerDao) {
         System.out.println("TEST 2: findByDepartment");
         Department department = new Department(2, "Eletronics");
         List<Seller> listOfSellers = sellerDao.findByDepartment(department);
@@ -39,7 +39,7 @@ public class Program {
         System.out.println("-------------------------------------------------------------------------------------");
     }
 
-    public static void test3(SellerDaoJDBC sellerDaoJDBC) {
+    public static void testFindAll(SellerDaoJDBC sellerDaoJDBC) {
         System.out.println("TEST 3: findAll");
         List<Seller> listOfSellers = sellerDaoJDBC.findAll();
         for (Seller seller : listOfSellers) {
@@ -48,7 +48,7 @@ public class Program {
         System.out.println("-------------------------------------------------------------------------------------");
     }
 
-    public static void test4(SellerDaoJDBC sellerDaoJDBC) {
+    public static void testInsert(SellerDaoJDBC sellerDaoJDBC) {
         System.out.println("TEST 4: insert");
         Department department = new Department(2, "Eletronics");
         Seller seller = new Seller(null, "Greg", "greg@gmail.com", new Date(), 4000.0, department);
@@ -57,7 +57,7 @@ public class Program {
         System.out.println("-------------------------------------------------------------------------------------");
     }
 
-    public static void test5(SellerDaoJDBC sellerDaoJDBC) {
+    public static void testUpdate(SellerDaoJDBC sellerDaoJDBC) {
         System.out.println("TEST 5: update");
         Seller seller = sellerDaoJDBC.findById(1);
         seller.setName("Willy");
@@ -67,7 +67,7 @@ public class Program {
         System.out.println("-------------------------------------------------------------------------------------");
     }
 
-    public static void test6(SellerDaoJDBC sellerDaoJDBC, Scanner scanner) {
+    public static void testDelete(SellerDaoJDBC sellerDaoJDBC, Scanner scanner) {
         System.out.println("TEST 6: deleteById");
         System.out.print("Enter an ID: ");
         Integer id = scanner.nextInt();
