@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import dao.Dao;
@@ -64,7 +65,42 @@ public class DepartmentDaoJDBC implements Dao<Department> {
 
     @Override
     public List<Department> findAll() {
-        return null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            preparedStatement = connection.prepareStatement(
+                "SELECT * "       +
+                "FROM department"
+            );
+            resultSet = preparedStatement.executeQuery();
+            return createListOfDepartments(resultSet);
+        }
+        catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
+        finally {
+            Database.closeResultSet(resultSet);
+            Database.closeStatement(preparedStatement);
+        }
+    }
+
+    private List<Department> createListOfDepartments(ResultSet resultSet) throws SQLException {
+        List<Department> listOfDepartments = new ArrayList<>();
+
+        while (resultSet.next()) {
+            Department department = createDepartment(resultSet);
+            listOfDepartments.add(department);
+        }
+
+        if (isListEmpty(listOfDepartments)) {
+            return null;
+        }
+        return listOfDepartments;
+    }
+
+    private boolean isListEmpty(List<?> list) {
+        return list.size() == 0;
     }
 
     private Department createDepartment(ResultSet resultSet) throws SQLException {
