@@ -11,6 +11,7 @@ import java.util.List;
 import dao.Dao;
 import database.Database;
 import database.DatabaseException;
+import database.DatabaseIntegrityException;
 import entities.Department;
 
 public class DepartmentDaoJDBC implements Dao<Department> {
@@ -77,7 +78,22 @@ public class DepartmentDaoJDBC implements Dao<Department> {
 
     @Override
     public void deleteById(Integer id) {
-        
+        PreparedStatement preparedStatement = null;
+
+        try {
+            preparedStatement = connection.prepareStatement(
+                "DELETE FROM department " +
+                "WHERE Id = ?"
+            );
+            preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
+        }
+        catch (SQLException sqlException) {
+            throw new DatabaseIntegrityException(sqlException.getMessage());
+        }
+        finally {
+            Database.closeStatement(preparedStatement);
+        }
     }
 
     @Override

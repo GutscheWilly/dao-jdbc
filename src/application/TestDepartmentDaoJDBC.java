@@ -16,6 +16,7 @@ public class TestDepartmentDaoJDBC {
         testFindAll(departmentDao);
         testInsert(departmentDao, scanner);
         testUpdate(departmentDao, 5, scanner);
+        testDeleteById(departmentDao, 6);
     }
 
     public static void testFindById(Dao<Department> departmentDao, Integer id) {
@@ -53,6 +54,14 @@ public class TestDepartmentDaoJDBC {
         department.setName(scanner.nextLine());
         departmentDao.update(department);
         System.out.println("Department updated! ID = " + department.getId());
+        System.out.println("-------------------------------------------------------------------------------------");
+    }
+
+    public static void testDeleteById(Dao<Department> departmentDao, Integer id) {
+        System.out.println("TEST 5: deleteById");
+        Department department = departmentDao.findById(id);
+        departmentDao.deleteById(id);
+        System.out.println("Department deleted: " + department);
         System.out.println("-------------------------------------------------------------------------------------");
     }
 }
