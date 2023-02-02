@@ -15,6 +15,7 @@ public class TestDepartmentDaoJDBC {
         testFindById(departmentDao, 4);
         testFindAll(departmentDao);
         testInsert(departmentDao, scanner);
+        testUpdate(departmentDao, 5, scanner);
     }
 
     public static void testFindById(Dao<Department> departmentDao, Integer id) {
@@ -43,5 +44,15 @@ public class TestDepartmentDaoJDBC {
         System.out.print("Enter department's name: ");
         String name = scanner.nextLine();
         return new Department(null, name);
-    }  
+    }
+    
+    public static void testUpdate(Dao<Department> departmentDao, Integer id, Scanner scanner) {
+        System.out.println("TEST 4: update");
+        Department department = departmentDao.findById(id);
+        System.out.print("Enter the new department's name: ");
+        department.setName(scanner.nextLine());
+        departmentDao.update(department);
+        System.out.println("Department updated! ID = " + department.getId());
+        System.out.println("-------------------------------------------------------------------------------------");
+    }
 }
