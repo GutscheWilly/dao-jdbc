@@ -4,12 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import dao.Dao;
 import database.Database;
 import database.DatabaseException;
+import database.DatabaseIntegrityException;
 import entities.Department;
 
 public class DepartmentDaoJDBC implements Dao<Department> {
@@ -22,17 +24,76 @@ public class DepartmentDaoJDBC implements Dao<Department> {
 
     @Override
     public void insert(Department department) {
-        
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            preparedStatement = connection.prepareStatement(
+                "INSERT INTO department " +
+                "(Name) "                 +
+                "VALUES "                 +
+                "(?)",
+                Statement.RETURN_GENERATED_KEYS
+            );
+            preparedStatement.setString(1, department.getName());
+            Integer rowsAffected = preparedStatement.executeUpdate();
+            resultSet = preparedStatement.getGeneratedKeys();
+
+            if (rowsAffected == 1 && resultSet.next()) {
+                department.setId(resultSet.getInt(1));
+            } else {
+                throw new SQLException();
+            }
+        }
+        catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
+        finally {
+            Database.closeResultSet(resultSet);
+            Database.closeStatement(preparedStatement);
+        }
     }
 
     @Override
     public void update(Department department) {
+        PreparedStatement preparedStatement = null;
         
+        try {
+            preparedStatement = connection.prepareStatement(
+                "UPDATE department " +
+                "SET Name = ? "      +
+                "WHERE Id = ?"
+            );
+            preparedStatement.setString(1, department.getName());
+            preparedStatement.setInt(2, department.getId());
+            preparedStatement.executeUpdate();
+        }
+        catch (SQLException sqlException) {
+            throw new DatabaseException(sqlException.getMessage());
+        }
+        finally {
+            Database.closeStatement(preparedStatement);
+        }
     }
 
     @Override
     public void deleteById(Integer id) {
-        
+        PreparedStatement preparedStatement = null;
+
+        try {
+            preparedStatement = connection.prepareStatement(
+                "DELETE FROM department " +
+                "WHERE Id = ?"
+            );
+            preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
+        }
+        catch (SQLException sqlException) {
+            throw new DatabaseIntegrityException(sqlException.getMessage());
+        }
+        finally {
+            Database.closeStatement(preparedStatement);
+        }
     }
 
     @Override
