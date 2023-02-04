@@ -1,6 +1,6 @@
 # Sobre o projeto
 * Realização do padão de projeto Data Access Objetct (DAO) integrando a API Java Database Connectivity (JDBC).
-* Implementei manualmente os principapis métodos que consultam ou modificam as tabelas do banco de dados, tais como:
+* Implementei manualmente os principais métodos que consultam ou modificam as tabelas do banco de dados:
   * FindById
   * FindAll
   * Insert
